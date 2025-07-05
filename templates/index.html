@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GitHub Events Feed</title>
+  <style>
+    body { font-family: Arial; padding: 30px; background: #f9f9f9; }
+    h2 { color: #222; }
+    ul { padding: 0; list-style: none; }
+    li {
+      background: #fff;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h2>Latest GitHub Events</h2>
+  <ul id="events"></ul>
+
+  <script>
+    async function loadEvents() {
+      const res = await fetch('/events');
+      const data = await res.json();
+      const list = document.getElementById("events");
+      list.innerHTML = '';
+
+      data.forEach(event => {
+        let text = '';
+        const { event: type, author, from_branch, to_branch, timestamp } = event;
+
+        if (type === 'push') {
+          text = `"${author}" pushed to "${to_branch}" on ${timestamp}`;
+        } else if (type === 'pull_request') {
+          text = `"${author}" submitted a pull request from "${from_branch}" to "${to_branch}" on ${timestamp}`;
+        } else if (type === 'merge') {
+          text = `"${author}" merged branch "${from_branch}" to "${to_branch}" on ${timestamp}`;
+        }
+
+        const li = document.createElement('li');
+        li.textContent = text;
+        list.appendChild(li);
+      });
+    }
+
+    loadEvents();
+    setInterval(loadEvents, 15000);  // Poll every 15 seconds
+  </script>
+</body>
+</html>
